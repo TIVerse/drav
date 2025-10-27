@@ -1,0 +1,120 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Go workspace file
+go.work
+
+# Build output
+/bin/
+/dist/
+/build/
+*.o
+*.a
+*.lib
+
+# DRAV specific binaries
+drav
+drav-*
+!drav-*.md
+
+# IDE - GoLand / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# IDE - VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Test coverage
+*.cover
+coverage.txt
+coverage.html
+coverage.out
+profile.out
+
+# Profiling data
+*.prof
+*.pprof
+cpu.prof
+mem.prof
+trace.out
+
+# Benchmark results
+benchmark.txt
+*.bench
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.log
+
+# Plugin development
+plugins/*.so
+plugins/build/
+
+# Documentation build artifacts
+/docs/_build/
+/docs/.doctrees/
+
+# Example application builds
+examples/*/main
+examples/*/*.exe
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Debug files
+debug
+__debug_bin
+
+# Air live reload (if used)
+tmp/
+
+# Archive files
+*.tar.gz
+*.zip
+*.7z
+
+# Development notes
+/notes/
+TODO.local.md
+SCRATCH.md
