@@ -1,0 +1,116 @@
+site_name: DRAV Documentation
+site_description: Dynamic Reactive Application View - Next-gen TUI framework for Go
+site_author: TIVerse
+site_url: https://drav.dev
+
+repo_name: TIVerse/drav
+repo_url: https://github.com/TIVerse/drav
+edit_uri: edit/main/docs/src/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started.md
+      - Quick Start: getting-started.md#quick-start
+      - Your First App: getting-started.md#your-first-app
+  - Core Concepts:
+      - Overview: concepts.md
+      - Reactive State: concepts.md#reactive-state
+      - Event System: concepts.md#event-system
+      - Component Model: concepts.md#component-model
+      - Layout System: concepts.md#layout-system
+  - Modules:
+      - Dravya (Runtime): modules/dravya.md
+      - Agni (Events): modules/agni.md
+      - Māyā (Renderer): modules/maya.md
+      - Prāṇa (State): modules/prana.md
+      - Vāk (Commands): modules/vak.md
+      - Vāyu (Plugins): modules/vayu.md
+      - Śrī (Themes): modules/sri.md
+  - Guides:
+      - Testing: guides/testing.md
+      - Performance: guides/performance.md
+      - Security: guides/security.md
+      - Plugins: guides/plugins.md
+  - API Reference:
+      - Full API: api/reference.md
+  - Migration:
+      - From BubbleTea/tview: migration/bubbletea-tview.md
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/TIVerse/drav
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/TIVerse
+  version:
+    provider: mike
+
+copyright: Copyright &copy; 2025 TIVerse

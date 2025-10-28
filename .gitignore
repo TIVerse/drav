@@ -26,9 +26,10 @@ go.work
 *.lib
 
 # DRAV specific binaries
-drav
-drav-*
+/drav
+/drav-*
 !drav-*.md
+!/cmd/drav/
 
 # IDE - GoLand / IntelliJ IDEA
 .idea/
