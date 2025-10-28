@@ -279,6 +279,12 @@ We welcome contributions! Please see:
 
 MIT License — see [LICENSE](LICENSE) for details.
 
+## 👨‍💻 Author
+
+Created by [Abhineesh Priyam](https://github.com/abhineeshpriyam) ([@abhineeshpriyam](https://github.com/abhineeshpriyam))
+
+Part of the [TIVerse](https://github.com/TIVerse) organization.
+
 ## 🙏 Acknowledgments
 
 DRAV is inspired by:
@@ -289,4 +295,4 @@ DRAV is inspired by:
 
 ---
 
-**Built with 💙 by the TIVerse team**
+**Built with 💙 by [Abhineesh Priyam](https://github.com/abhineeshpriyam)**
