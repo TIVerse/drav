@@ -9,30 +9,34 @@ import (
 	_ "net/http/pprof"
 	"sync"
 	"time"
+
+	"github.com/TIVerse/drav/pkg/maya"
 )
 
 // App is the main DRAV application.
 type App struct {
-	config     *appConfig
-	logger     *Logger
-	lifecycle  *Lifecycle
-	loop       *Loop
-	root       Component
-	renderer   Renderer
-	eventHub   EventHub
-	stateStore StateStore
+	config      *appConfig
+	logger      *Logger
+	lifecycle   *Lifecycle
+	loop        *Loop
+	root        Component
+	renderer    Renderer
+	eventHub    EventHub
+	stateStore  StateStore
 	cmdRegistry CommandRegistry
-	pluginMgr  PluginManager
-	themeMgr   ThemeManager
-	mu         sync.RWMutex
-	startTime  time.Time
-	tasks      sync.WaitGroup
-}
+	pluginMgr   PluginManager
+	themeMgr    ThemeManager
+	mu          sync.RWMutex
+	startTime   time.Time
+	tasks       sync.WaitGroup
+} // Component is a renderable UI component (alias for maya.Component).
+type Component = maya.Component
 
-// Component is any type that can render UI (accepts maya.Component).
-type Component interface {
-	Render(ctx interface{ Width() int; Height() int; Focused() bool }) interface{ Type() string }
-}
+// RenderContext provides context for rendering (alias for maya.RenderContext).
+type RenderContext = maya.RenderContext
+
+// View represents a virtual UI tree node (alias for maya.View).
+type View = maya.View
 
 // Renderer handles screen rendering.
 type Renderer interface {
@@ -136,10 +140,10 @@ func NewApp(opts ...AppOption) *App {
 }
 
 // SetRoot sets the root component for rendering (accepts any maya.Component).
-func (a *App) SetRoot(root interface{}) {
+func (a *App) SetRoot(root Component) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	a.root = root.(Component)
+	a.root = root
 }
 
 // Run starts the application main loop.
