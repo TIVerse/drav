@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 
 	"github.com/TIVerse/drav/pkg/agni"
 	"github.com/TIVerse/drav/pkg/dravya"
@@ -85,7 +86,7 @@ func (c *Counter) SetupEventHandlers(eventHub dravya.EventHub) {
 func main() {
 	// Create app with options
 	app := dravya.NewApp(
-		dravya.WithLogLevel(log.LevelInfo),
+		dravya.WithLogLevel(slog.LevelInfo),
 	)
 
 	// Create counter

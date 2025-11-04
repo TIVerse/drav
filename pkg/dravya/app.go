@@ -484,14 +484,14 @@ func (a *App) registerGlobalHandlers() {
 			}
 			
 			// Tab: Focus next
-			if keyEvent.Key == agni.KeyTab && keyEvent.Mods&agni.ModShift == 0 {
+			if keyEvent.Key == agni.KeyTab && keyEvent.Modifiers&agni.ModShift == 0 {
 				a.focusManager.FocusNext()
 				a.RequestRender()
 				return nil
 			}
 			
 			// Shift+Tab: Focus previous
-			if keyEvent.Key == agni.KeyTab && keyEvent.Mods&agni.ModShift != 0 {
+			if keyEvent.Key == agni.KeyTab && keyEvent.Modifiers&agni.ModShift != 0 {
 				a.focusManager.FocusPrevious()
 				a.RequestRender()
 				return nil
