@@ -29,6 +29,7 @@ type App struct {
 	cmdRegistry   CommandRegistry
 	pluginMgr     PluginManager
 	themeMgr      ThemeManager
+	focusManager  *maya.FocusManager
 	mu            sync.RWMutex
 	startTime     time.Time
 	tasks         sync.WaitGroup
@@ -131,10 +132,11 @@ func NewApp(opts ...AppOption) *App {
 	}))
 
 	app := &App{
-		config:    cfg,
-		logger:    logger,
-		lifecycle: NewLifecycle(),
-		loop:      NewLoop(cfg.fpsTarget),
+		config:       cfg,
+		logger:       logger,
+		lifecycle:    NewLifecycle(),
+		loop:         NewLoop(cfg.fpsTarget),
+		focusManager: maya.NewFocusManager(),
 	}
 
 	// Register lifecycle hooks
@@ -287,6 +289,11 @@ func (a *App) EventHub() EventHub {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.eventHub
+}
+
+// FocusManager returns the focus manager.
+func (a *App) FocusManager() *maya.FocusManager {
+	return a.focusManager
 }
 
 // onInitializing is called during initialization.
@@ -469,9 +476,24 @@ func (a *App) registerGlobalHandlers() {
 	// Handle Ctrl+C for graceful shutdown
 	a.eventHub.On(agni.EventTypeKey, func(ctx context.Context, event Event) error {
 		if keyEvent, ok := event.(*agni.KeyEvent); ok {
+			// Ctrl+C: Shutdown
 			if keyEvent.Key == agni.KeyCtrlC {
 				a.logger.Info("Ctrl+C received, initiating shutdown")
 				a.lifecycle.Shutdown(nil)
+				return nil
+			}
+			
+			// Tab: Focus next
+			if keyEvent.Key == agni.KeyTab && keyEvent.Mods&agni.ModShift == 0 {
+				a.focusManager.FocusNext()
+				a.RequestRender()
+				return nil
+			}
+			
+			// Shift+Tab: Focus previous
+			if keyEvent.Key == agni.KeyTab && keyEvent.Mods&agni.ModShift != 0 {
+				a.focusManager.FocusPrevious()
+				a.RequestRender()
 				return nil
 			}
 		}
