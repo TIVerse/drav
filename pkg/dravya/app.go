@@ -8,28 +8,31 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/TIVerse/drav/pkg/agni"
 	"github.com/TIVerse/drav/pkg/maya"
+	"github.com/TIVerse/drav/pkg/prana"
 )
 
 // App is the main DRAV application.
 type App struct {
-	config      *appConfig
-	logger      *Logger
-	lifecycle   *Lifecycle
-	loop        *Loop
-	root        Component
-	renderer    Renderer
-	eventHub    EventHub
-	stateStore  StateStore
-	cmdRegistry CommandRegistry
-	pluginMgr   PluginManager
-	themeMgr    ThemeManager
-	mu          sync.RWMutex
-	startTime   time.Time
-	tasks       sync.WaitGroup
+	config        *appConfig
+	logger        *Logger
+	lifecycle     *Lifecycle
+	loop          *Loop
+	root          Component
+	renderer      Renderer
+	eventHub      EventHub
+	stateStore    StateStore
+	cmdRegistry   CommandRegistry
+	pluginMgr     PluginManager
+	themeMgr      ThemeManager
+	mu            sync.RWMutex
+	startTime     time.Time
+	tasks         sync.WaitGroup
+	renderPending atomic.Bool
 } // Component is a renderable UI component (alias for maya.Component).
 type Component = maya.Component
 
@@ -271,9 +274,20 @@ func (a *App) Lifecycle() *Lifecycle {
 	return a.lifecycle
 }
 
+// EventHub returns the event hub.
+func (a *App) EventHub() EventHub {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	return a.eventHub
+}
+
 // onInitializing is called during initialization.
 func (a *App) onInitializing(ctx context.Context) error {
 	a.logger.Info("Initializing application")
+
+	// Set up global render callback for observables
+	prana.SetGlobalRenderCallback(a.RequestRender)
+	a.logger.Info("Connected observable state to render system")
 
 	// Create default renderer if not set
 	if a.renderer == nil {
@@ -468,7 +482,5 @@ func (a *App) registerGlobalHandlers() {
 // RequestRender requests a re-render on the next frame.
 // This is called by observables when state changes.
 func (a *App) RequestRender() {
-	// The render happens automatically each frame in the loop
-	// This is a no-op for now, but could be used for optimization
-	// to skip frames when no state has changed
+	a.renderPending.Store(true)
 }
