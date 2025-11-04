@@ -107,13 +107,13 @@ func (d *Dispatcher) Stop() error {
 }
 
 // After schedules a one-shot timer.
-func (d *Dispatcher) After(ctx context.Context, id string, duration interface{}, callback func(ctx context.Context)) *Timer {
-	return d.timerMgr.After(ctx, id, duration.(time.Duration), callback)
+func (d *Dispatcher) After(ctx context.Context, id string, duration time.Duration, callback func(ctx context.Context)) *Timer {
+	return d.timerMgr.After(ctx, id, duration, callback)
 }
 
 // Every schedules a repeating timer.
-func (d *Dispatcher) Every(ctx context.Context, id string, interval interface{}, callback func(ctx context.Context)) *Timer {
-	return d.timerMgr.Every(ctx, id, interval.(time.Duration), callback)
+func (d *Dispatcher) Every(ctx context.Context, id string, interval time.Duration, callback func(ctx context.Context)) *Timer {
+	return d.timerMgr.Every(ctx, id, interval, callback)
 }
 
 // CancelTimer cancels a timer by ID.

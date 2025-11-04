@@ -1,6 +1,7 @@
 # DRAV (द्रव) — Dynamic Reactive Application View
 
 [![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Go Reference](https://pkg.go.dev/badge/github.com/TIVerse/drav.svg)](https://pkg.go.dev/github.com/TIVerse/drav)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Report Card](https://goreportcard.com/badge/github.com/TIVerse/drav)](https://goreportcard.com/report/github.com/TIVerse/drav)
 

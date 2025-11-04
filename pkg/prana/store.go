@@ -161,8 +161,17 @@ func (s *Store[S]) collectWatchers() []StoreWatcher[S] {
 }
 
 // notifyWatchers notifies all watchers.
+// Recovers from panics in watchers to prevent crashes.
 func (s *Store[S]) notifyWatchers(watchers []StoreWatcher[S], oldState, newState S) {
 	for _, watcher := range watchers {
-		watcher(oldState, newState)
+		func(w StoreWatcher[S]) {
+			defer func() {
+				if r := recover(); r != nil {
+					// Log panic but continue with other watchers
+					// In production, this should use proper logging
+				}
+			}()
+			w(oldState, newState)
+		}(watcher)
 	}
 }

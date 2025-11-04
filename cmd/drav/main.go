@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/TIVerse/drav/pkg/dravya"
+	"github.com/TIVerse/drav/pkg/maya"
 )
 
 var (
@@ -18,6 +19,16 @@ var (
 	buildDate = "unknown"
 	gitCommit = "unknown"
 )
+
+// welcomeComponent is a simple welcome screen component.
+type welcomeComponent struct{}
+
+func (w *welcomeComponent) Render(ctx dravya.RenderContext) dravya.View {
+	return maya.Text(
+		fmt.Sprintf("Welcome to DRAV (द्रव) v%s\n\nPress Ctrl+C to exit", version),
+		maya.WithForeground(maya.RGB(100, 200, 255)),
+	)
+}
 
 func main() {
 	// Parse flags
@@ -61,6 +72,18 @@ func main() {
 	// Create application
 	app := dravya.NewApp(appOpts...)
 
+	// Create and set renderer
+	driver := maya.NewTcellDriver()
+	renderer := maya.NewRenderer(driver)
+	app.SetRenderer(renderer)
+
+	// Create and set event hub
+	eventHub := dravya.NewDefaultEventHub()
+	app.SetEventHub(eventHub)
+
+	// Set a simple root component
+	app.SetRoot(&welcomeComponent{})
+
 	// Set up signal handling
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -73,9 +96,6 @@ func main() {
 		log.Println("Received interrupt signal, shutting down...")
 		cancel()
 	}()
-
-	// TODO: Load root component based on CLI args or config
-	// For now, just run with no root to demonstrate the framework
 
 	// Run application
 	if err := app.Run(ctx); err != nil && err != context.Canceled {

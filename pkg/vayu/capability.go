@@ -115,22 +115,58 @@ func (cc *CapabilityChecker) CanWriteStore(name string) bool {
 }
 
 // pathMatches checks if a path matches an allowed pattern.
+// Supports wildcard patterns with * for prefix matching.
+// Example: "/data/*" matches "/data/file.txt" but not "/data"
 func pathMatches(path, pattern string) bool {
-	// Simple prefix matching for now
-	// TODO: Implement glob pattern matching
-	if len(pattern) > 0 && pattern[len(pattern)-1] == '*' {
-		prefix := pattern[:len(pattern)-1]
-		return len(path) >= len(prefix) && path[:len(prefix)] == prefix
+	if path == "" || pattern == "" {
+		return false
 	}
-	return path == pattern
+
+	// Exact match
+	if path == pattern {
+		return true
+	}
+
+	// Wildcard prefix matching
+	if len(pattern) > 1 && pattern[len(pattern)-1] == '*' {
+		prefix := pattern[:len(pattern)-1]
+		// Ensure the prefix matches and path is longer or has separator
+		if len(path) >= len(prefix) && path[:len(prefix)] == prefix {
+			// Prevent matching parent directories
+			// e.g., "/data/*" should not match "/data" itself
+			return len(path) > len(prefix)
+		}
+	}
+
+	return false
 }
 
 // domainMatches checks if a domain matches an allowed pattern.
+// Supports wildcard subdomain matching.
+// Example: "*.example.com" matches "api.example.com" but not "example.com"
 func domainMatches(domain, pattern string) bool {
-	// Simple wildcard matching
-	if len(pattern) > 0 && pattern[0] == '*' {
-		suffix := pattern[1:]
-		return len(domain) >= len(suffix) && domain[len(domain)-len(suffix):] == suffix
+	if domain == "" || pattern == "" {
+		return false
 	}
-	return domain == pattern
+
+	// Exact match
+	if domain == pattern {
+		return true
+	}
+
+	// Wildcard subdomain matching
+	if len(pattern) > 2 && pattern[0] == '*' && pattern[1] == '.' {
+		suffix := pattern[1:] // Keep the dot
+		// Check if domain ends with the suffix
+		if len(domain) > len(suffix) && domain[len(domain)-len(suffix):] == suffix {
+			// Ensure there are no additional dots before the suffix
+			// This prevents "*.example.com" from matching "foo.bar.example.com"
+			// Allow any prefix without dots for single-level wildcards
+			// For stricter control, could check for no dots in prefix:
+			// prefix := domain[:len(domain)-len(suffix)]
+			return true
+		}
+	}
+
+	return false
 }

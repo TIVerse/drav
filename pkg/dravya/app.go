@@ -41,9 +41,10 @@ type View = maya.View
 // Renderer handles screen rendering.
 type Renderer interface {
 	Init() error
-	Render(ctx context.Context, view interface{}) error
+	Render(ctx context.Context, view View) error
 	Clear() error
 	Shutdown() error
+	Size() (width, height int)
 }
 
 // EventHub manages event dispatch.
@@ -136,7 +137,26 @@ func NewApp(opts ...AppOption) *App {
 	app.lifecycle.OnState(StateRunning, app.onRunning)
 	app.lifecycle.OnState(StateShuttingDown, app.onShuttingDown)
 
+	// Apply component options after app creation
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
 	return app
+}
+
+// SetRenderer sets the renderer for the application.
+func (a *App) SetRenderer(r Renderer) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.renderer = r
+}
+
+// SetEventHub sets the event hub for the application.
+func (a *App) SetEventHub(eh EventHub) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.eventHub = eh
 }
 
 // SetRoot sets the root component for rendering (accepts any maya.Component).
@@ -317,11 +337,19 @@ func (a *App) renderFrame(ctx context.Context, frameTime time.Time, delta time.D
 		return nil
 	}
 
-	// Render the root component
-	// For now, we skip actual rendering as it requires maya integration
-	// This will be implemented when we create the maya package
+	// Get terminal size for render context
+	width, height := renderer.Size()
+	renderCtx := &maya.BaseRenderContext{
+		WidthVal:   width,
+		HeightVal:  height,
+		FocusedVal: true,
+	}
 
-	return nil
+	// Render the root component to get the view tree
+	view := root.Render(renderCtx)
+
+	// Render the view to the screen
+	return renderer.Render(ctx, view)
 }
 
 // Stats returns application statistics.

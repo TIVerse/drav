@@ -458,7 +458,7 @@ SOFTWARE.
 
 **Website**: https://drav.dev (planned)
 
-**Repository**: https://github.com/abhineesh/drav (planned)
+**Repository**: https://github.com/TIVerse/drav
 
 **Documentation**: https://docs.drav.dev (planned)
 

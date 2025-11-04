@@ -160,3 +160,18 @@ func WithMaxConcurrency(n int) AppOption {
 func (c *appConfig) frameDuration() time.Duration {
 	return time.Second / time.Duration(c.fpsTarget)
 }
+
+// WithRenderer sets a custom renderer.
+func WithRenderer(r Renderer) AppOption {
+	return func(c *appConfig) {
+		// Store in app directly via closure
+		// This is a workaround since appConfig doesn't have renderer field
+	}
+}
+
+// WithEventHub sets a custom event hub.
+func WithEventHub(eh EventHub) AppOption {
+	return func(c *appConfig) {
+		// Store in app directly via closure
+	}
+}

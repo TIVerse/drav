@@ -15,7 +15,7 @@ package main
 
 import (
     "time"
-    "github.com/abhineesh/drav"
+    "github.com/TIVerse/drav"
 )
 
 type SystemDashboard struct {

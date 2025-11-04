@@ -204,9 +204,9 @@ This comprehensive technical brief serves multiple purposes:
 
 ## 📞 Contact & Contribution
 
-**Author**: Abhineesh Priyam  
+**Author**: Abhineesh Priyam ([@abhineeshpriyam](https://github.com/abhineeshpriyam))  
 **Project**: VEDA (Vedic Engineering & Design Architecture)  
-**Repository**: [github.com/abhineesh/drav](https://github.com/abhineesh/drav) (planned)  
+**Repository**: [github.com/TIVerse/drav](https://github.com/TIVerse/drav)  
 **Email**: [Contact via repository]
 
 **How to Contribute to This Brief**:

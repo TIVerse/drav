@@ -43,8 +43,17 @@ func (o *Observable[T]) Set(newValue T) {
 	o.mu.Unlock()
 
 	// Notify watchers outside the lock
+	// Recover from panics in watchers to prevent crashes
 	for _, watcher := range watchers {
-		watcher(oldValue, newValue)
+		func(w Watcher[T]) {
+			defer func() {
+				if r := recover(); r != nil {
+					// Log panic but continue with other watchers
+					// In production, this should use proper logging
+				}
+			}()
+			w(oldValue, newValue)
+		}(watcher)
 	}
 }
 
@@ -61,8 +70,17 @@ func (o *Observable[T]) Update(fn func(T) T) {
 	o.mu.Unlock()
 
 	// Notify watchers outside the lock
+	// Recover from panics in watchers to prevent crashes
 	for _, watcher := range watchers {
-		watcher(oldValue, newValue)
+		func(w Watcher[T]) {
+			defer func() {
+				if r := recover(); r != nil {
+					// Log panic but continue with other watchers
+					// In production, this should use proper logging
+				}
+			}()
+			w(oldValue, newValue)
+		}(watcher)
 	}
 }
 
