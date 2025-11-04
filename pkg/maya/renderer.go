@@ -250,3 +250,10 @@ func (r *Renderer) ClearDirty() {
 	defer r.mu.Unlock()
 	r.damageTrack = make(map[string]bool)
 }
+
+// Driver returns the underlying driver.
+func (r *Renderer) Driver() Driver {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.driver
+}

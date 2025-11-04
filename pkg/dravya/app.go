@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/TIVerse/drav/pkg/agni"
 	"github.com/TIVerse/drav/pkg/maya"
 )
 
@@ -274,23 +275,42 @@ func (a *App) Lifecycle() *Lifecycle {
 func (a *App) onInitializing(ctx context.Context) error {
 	a.logger.Info("Initializing application")
 
-	// Initialize renderer if set
-	if a.renderer != nil {
-		if err := a.renderer.Init(); err != nil {
-			return fmt.Errorf("renderer init failed: %w", err)
+	// Create default renderer if not set
+	if a.renderer == nil {
+		driver := maya.NewTcellDriver()
+		a.renderer = maya.NewRenderer(driver)
+		a.logger.Info("Created default tcell renderer")
+	}
+
+	// Initialize renderer
+	if err := a.renderer.Init(); err != nil {
+		return fmt.Errorf("renderer init failed: %w", err)
+	}
+
+	// Create default event hub if not set
+	if a.eventHub == nil {
+		a.eventHub = NewDefaultEventHub()
+		a.logger.Info("Created default event hub")
+	}
+
+	// Start event hub
+	a.tasks.Add(1)
+	go func() {
+		defer a.tasks.Done()
+		if err := a.eventHub.Start(ctx); err != nil {
+			a.logger.Error("Event hub error", "error", err)
+		}
+	}()
+
+	// Set up event polling if we have a tcell renderer
+	if renderer, ok := a.renderer.(*maya.Renderer); ok {
+		if err := a.startEventPolling(ctx, renderer); err != nil {
+			return fmt.Errorf("failed to start event polling: %w", err)
 		}
 	}
 
-	// Start event hub if set
-	if a.eventHub != nil {
-		a.tasks.Add(1)
-		go func() {
-			defer a.tasks.Done()
-			if err := a.eventHub.Start(ctx); err != nil {
-				a.logger.Error("Event hub error", "error", err)
-			}
-		}()
-	}
+	// Register global event handlers
+	a.registerGlobalHandlers()
 
 	return nil
 }
@@ -375,3 +395,80 @@ type AppStats struct {
 
 // ErrShutdown is returned when the application is shutting down.
 var ErrShutdown = errors.New("application is shutting down")
+
+// startEventPolling starts polling terminal events.
+func (a *App) startEventPolling(ctx context.Context, renderer *maya.Renderer) error {
+	// Get the tcell driver from the renderer
+	driver, ok := renderer.Driver().(*maya.TcellDriver)
+	if !ok {
+		a.logger.Warn("Renderer is not using TcellDriver, event polling disabled")
+		return nil
+	}
+
+	// Get the dispatcher from the event hub adapter
+	var dispatcher *agni.Dispatcher
+	if adapter, ok := a.eventHub.(*agniEventAdapter); ok {
+		dispatcher = adapter.dispatcher
+	} else {
+		a.logger.Warn("Event hub is not agni-based, event polling disabled")
+		return nil
+	}
+
+	// Create event poller
+	poller := maya.NewEventPoller(driver, dispatcher)
+
+	// Start polling in background
+	a.tasks.Add(1)
+	go func() {
+		defer a.tasks.Done()
+		if err := poller.Poll(ctx); err != nil && err != context.Canceled {
+			a.logger.Error("Event polling error", "error", err)
+		}
+	}()
+
+	a.logger.Info("Event polling started")
+	return nil
+}
+
+// registerGlobalHandlers registers global event handlers like Ctrl+C.
+func (a *App) registerGlobalHandlers() {
+	// Handle Ctrl+C for graceful shutdown
+	a.eventHub.On(agni.EventTypeKey, func(ctx context.Context, event Event) error {
+		if keyEvent, ok := event.(*agni.KeyEvent); ok {
+			if keyEvent.Key == agni.KeyCtrlC {
+				a.logger.Info("Ctrl+C received, initiating shutdown")
+				a.lifecycle.Shutdown(nil)
+				return nil
+			}
+		}
+		return nil
+	})
+
+	// Handle quit events
+	a.eventHub.On(agni.EventTypeQuit, func(ctx context.Context, event Event) error {
+		a.logger.Info("Quit event received, initiating shutdown")
+		a.lifecycle.Shutdown(nil)
+		return nil
+	})
+
+	// Handle resize events
+	a.eventHub.On(agni.EventTypeResize, func(ctx context.Context, event Event) error {
+		if resizeEvent, ok := event.(*agni.ResizeEvent); ok {
+			a.logger.Info("Terminal resized", "width", resizeEvent.Width, "height", resizeEvent.Height)
+			if renderer, ok := a.renderer.(*maya.Renderer); ok {
+				renderer.Resize(resizeEvent.Width, resizeEvent.Height)
+			}
+		}
+		return nil
+	})
+
+	a.logger.Info("Global event handlers registered")
+}
+
+// RequestRender requests a re-render on the next frame.
+// This is called by observables when state changes.
+func (a *App) RequestRender() {
+	// The render happens automatically each frame in the loop
+	// This is a no-op for now, but could be used for optimization
+	// to skip frames when no state has changed
+}
