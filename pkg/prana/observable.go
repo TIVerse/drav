@@ -55,6 +55,9 @@ func (o *Observable[T]) Set(newValue T) {
 			w(oldValue, newValue)
 		}(watcher)
 	}
+
+	// Request a re-render after notifying watchers
+	requestRender()
 }
 
 // Update applies a function to update the value.
@@ -82,6 +85,9 @@ func (o *Observable[T]) Update(fn func(T) T) {
 			w(oldValue, newValue)
 		}(watcher)
 	}
+
+	// Request a re-render after notifying watchers
+	requestRender()
 }
 
 // Watch registers a watcher and returns an unwatch function.
