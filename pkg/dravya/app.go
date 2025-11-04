@@ -33,6 +33,7 @@ type App struct {
 	startTime     time.Time
 	tasks         sync.WaitGroup
 	renderPending atomic.Bool
+	onReadyHooks  []func()
 } // Component is a renderable UI component (alias for maya.Component).
 type Component = maya.Component
 
@@ -168,6 +169,13 @@ func (a *App) SetRoot(root Component) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.root = root
+}
+
+// OnReady registers a callback to be called when the app is ready (after initialization).
+func (a *App) OnReady(callback func()) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.onReadyHooks = append(a.onReadyHooks, callback)
 }
 
 // Run starts the application main loop.
@@ -325,6 +333,18 @@ func (a *App) onInitializing(ctx context.Context) error {
 
 	// Register global event handlers
 	a.registerGlobalHandlers()
+
+	// Call OnReady hooks
+	a.mu.RLock()
+	hooks := make([]func(), len(a.onReadyHooks))
+	copy(hooks, a.onReadyHooks)
+	a.mu.RUnlock()
+	
+	for _, hook := range hooks {
+		hook()
+	}
+	
+	a.logger.Info("Initialization complete, ready hooks called")
 
 	return nil
 }
